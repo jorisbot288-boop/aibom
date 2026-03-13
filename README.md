@@ -99,3 +99,29 @@ AIBOM v0.2.0 detects usage of the following frameworks and providers:
 ## License
 
 MIT
+
+## Developer FAQ
+
+**Does AIBOM scan all Python files recursively?**
+
+Yes. The `aibom scan .` command scans for Python files recursively within the specified directory.
+
+**Does it work with virtual environments or requirements.txt?**
+
+No. Version 0.2.0 performs an AST (Abstract Syntax Tree) scan on Python files directly. It does not analyze virtual environments or parse dependencies from `requirements.txt`.
+
+**Can I scan a single file instead of a whole project?**
+
+No, single-file scanning is not supported in v0.2.0. The tool currently operates on directories.
+
+**What does the JSON output schema look like?**
+
+The JSON output contains `aibom_version`, `generated_at`, `project_path`, and three arrays for discovered assets: `datasets`, `models`, and `apis`.
+
+**Is this an official EU AI Act compliance tool?**
+
+No. AIBOM is an open-source, community-driven project and is not an official tool for EU AI Act compliance.
+
+**Can I contribute new framework detections?**
+
+Yes, contributions are encouraged. See our `CONTRIBUTING.md` file for details on how to get started.
