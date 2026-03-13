@@ -78,6 +78,7 @@ class DetectionVisitor(ast.NodeVisitor):
     def visit_Import(self, node: ast.Import):
         for alias in node.names:
             self.imported_modules.add(alias.name)
+            self._detect_framework_import(alias.name, node.lineno)
             if alias.asname:
                 self.imports[alias.asname] = alias.name
             else:
@@ -92,8 +93,10 @@ class DetectionVisitor(ast.NodeVisitor):
             self.generic_visit(node)
             return
         self.imported_modules.add(module)
+        self._detect_framework_import(module, node.lineno)
         for alias in node.names:
             full_name = f"{module}.{alias.name}" if alias.name != "*" else module
+            self._detect_framework_import(full_name, node.lineno)
             if alias.asname:
                 self.imports[alias.asname] = full_name
             else:
@@ -111,6 +114,21 @@ class DetectionVisitor(ast.NodeVisitor):
                 return None
             return f"{value}.{node.attr}"
         return None
+    
+    def _detect_framework_import(self, module_name: str, line: int):
+        """Detect framework imports and add appropriate entries."""
+        if module_name == "sklearn" or module_name.startswith("sklearn."):
+            self._add_model("scikit-learn", "scikit-learn", line=line)
+        elif module_name == "langchain" or module_name.startswith("langchain."):
+            self._add_api("langchain", "langchain", line=line)
+        elif module_name == "llama_index" or module_name.startswith("llama_index."):
+            self._add_api("llamaindex", "llamaindex", line=line)
+        elif module_name == "vertexai" or module_name.startswith("vertexai."):
+            self._add_api("google-vertex-ai", "vertexai", line=line)
+        elif module_name == "cohere" or module_name.startswith("cohere."):
+            self._add_api("cohere", "cohere", line=line)
+        elif module_name == "google.cloud.aiplatform" or "google.cloud.aiplatform" in module_name:
+            self._add_api("google-vertex-ai", "aiplatform", line=line)
     
     def visit_Call(self, node: ast.Call):
         # Helper to extract a string literal from an AST node
@@ -157,6 +175,17 @@ class DetectionVisitor(ast.NodeVisitor):
                     if class_name in TORCHVISION_DATASET_CLASSES:
                         self._add_dataset(class_name, "torchvision", f"https://pytorch.org/vision/stable/datasets.html#{class_name.lower()}", node.lineno)
         
+        # Detect scikit-learn class instantiation
+        if isinstance(func, (ast.Name, ast.Attribute)):
+            resolved = self._resolve_name(func)
+            if resolved and (resolved.startswith("sklearn.") or resolved.startswith("sklearn_")):
+                self._add_model(resolved.split(".")[-1], "scikit-learn", line=node.lineno)
+
+        # Detect Cohere API calls
+        if isinstance(node.func, ast.Attribute) and node.func.attr in ("generate", "chat"):
+            if "cohere" in self.imported_modules:
+                self._add_api("cohere", f"cohere.{node.func.attr}", node.lineno)
+
         # Detect OpenAI API calls
         # Patterns:
         #   openai.ChatCompletion.create
