@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIBOM – Generate EU AI Act Docs From Your Code</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --text-primary: #f1f5f9;
+            --accent: #38bdf8;
+            --code-bg: #1e293b;
+            --code-text: #7dd3fc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            padding: 24px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 48px;
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            line-height: 1.1;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--accent), #7dd3fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            opacity: 0.9;
+        }
+
+        .subheadline {
+            font-size: 1.375rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            min-width: 180px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            background-color: transparent;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        section {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        ul, ol {
+            padding-left: 24px;
+            margin-bottom: 16px;
+            opacity: 0.9;
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 1.125rem;
+        }
+
+        .code-block {
+            position: relative;
+            background-color: var(--code-bg);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            color: var(--code-text);
+            overflow-x: auto;
+            margin: 24px 0;
+            font-size: 1rem;
+            line-height: 1.5;
+            border: 1px solid rgba(124, 211, 252, 0.2);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: rgba(124, 211, 252, 0.1);
+            color: var(--code-text);
+            border: 1px solid rgba(124, 211, 252, 0.3);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(124, 211, 252, 0.2);
+        }
+
+        .copy-btn.copied {
+            background-color: rgba(56, 189, 248, 0.3);
+            color: var(--accent);
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.1);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(241, 245, 249, 0.1);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            .subheadline {
+                font-size: 1.25rem;
+            }
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 16px;
+            }
+            .container {
+                gap: 36px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            h3 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Generate EU AI Act Docs From Your Code</h1>
+            <p class="subheadline">A free CLI to scan your Python AI project and create an AI Bill of Materials for Annex IV compliance.</p>
+            <div class="hero-buttons">
+                <a href="https://github.com/jorisbot288-boop/aibom" target="_blank" class="btn btn-primary">View on GitHub</a>
+                <div class="code-block" style="margin:0;padding: 12px 24px;padding-right: 80px;">
+                    <code>pip install aibom-cli</code>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+        </header>
+
+        <section id="problem">
+            <h2>The Problem</h2>
+            <p>The EU AI Act is here. Proving compliance is now on you.</p>
+            <ul>
+                <li>The Act requires detailed technical documentation for high-risk AI systems under Annex IV.</li>
+                <li>Manually tracking every model, dataset, and framework is time-consuming and error-prone.</li>
+                <li>Incomplete documentation can block market access and lead to compliance issues.</li>
+            </ul>
+        </section>
+
+        <section id="how-it-works">
+            <h2>How It Works</h2>
+            <p>AIBOM automates the first step of technical documentation.</p>
+            <ol>
+                <li><strong>Scan:</strong> <code>aibom scan .</code> recursively searches your Python codebase for AI and ML dependencies.</li>
+                <li><strong>Detect:</strong> It identifies frameworks, models, and datasets from providers like HuggingFace, OpenAI, and TensorFlow.</li>
+                <li><strong>Generate:</strong> The tool outputs a structured markdown file (<code>aibom.md</code>) detailing the components, ready for your records.</li>
+            </ol>
+        </section>
+
+        <section id="features">
+            <h2>Features</h2>
+            <p>Simple, focused, and built for developers.</p>
+            <ul>
+                <li><strong>Broad Framework Detection:</strong> Scans for imports and API usage from major providers including HuggingFace, OpenAI, Anthropic, and Google AI.</li>
+                <li><strong>Dataset Identification:</strong> Detects common datasets from libraries like TensorFlow Datasets and torchvision to help trace data lineage.</li>
+                <li><strong>Clear Markdown Output:</strong> Generates a clean <code>aibom.md</code> file listing all detected components with links to their sources.</li>
+                <li><strong>Simple CLI Interface:</strong> Integrates into any workflow with a single command. No configuration needed to get started.</li>
+            </ul>
+        </section>
+
+        <section id="install">
+            <h2>Get Started in 60 Seconds</h2>
+            <p>Install the CLI via pip and run a scan on your project.</p>
+            <div class="code-block">
+                <code>pip install aibom-cli<br>aibom scan .</code>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+        </section>
+
+        <section id="faq">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-item">
+                <h3>Is it free?</h3>
+                <p>Yes, AIBOM is completely free and open-source, licensed under the MIT License.</p>
+            </div>
+            <div class="faq-item">
+                <h3>What AI frameworks does it support?</h3>
+                <p>It currently detects components from HuggingFace (transformers, datasets), OpenAI, Anthropic, Google AI (Vertex, Gemini), TensorFlow, and PyTorch (torchvision).</p>
+            </div>
+            <div class="faq-item">
+                <h3>What does the output look like?</h3>
+                <p>The tool generates a single markdown file (<code>aibom.md</code>) that lists detected models, datasets, and libraries, organized by provider.</p>
+            </div>
+            <div class="faq-item">
+                <h3>Does it cover the full EU AI Act?</h3>
+                <p>No. AIBOM specifically helps automate the technical documentation required by Annex IV. It is one part of a larger compliance process and does not cover legal, ethical, or procedural requirements.</p>
+            </div>
+        </section>
+
+        <section id="cta" style="text-align: center; padding: 40px 0;">
+            <h2>Ready to Automate Your AI Compliance Docs?</h2>
+            <div class="hero-buttons" style="margin-top: 24px;">
+                <a href="https://github.com/jorisbot288-boop/aibom" target="_blank" class="btn btn-primary">Star on GitHub</a>
+                <div class="code-block" style="margin:0;padding: 12px 24px;padding-right: 80px;">
+                    <code>pip install aibom-cli</code>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>AIBOM is a free open-source CLI for EU AI Act Annex IV compliance documentation.</p>
+            <p>GitHub: <a href="https://github.com/jorisbot288-boop/aibom" target="_blank">jorisbot288-boop/aibom</a></p>
+        </footer>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const codeText = codeBlock.querySelector('code').innerText;
+            navigator.clipboard.writeText(codeText)
+                .then(() => {
+                    button.textContent = 'Copied!';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                        button.classList.remove('copied');
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy:', err);
+                    button.textContent = 'Failed';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 2000);
+                });
+        }
+
+        // Ensure code blocks have copy buttons if they don't already
+        document.addEventListener('DOMContentLoaded', () => {
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                if (!block.querySelector('.copy-btn')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'copy-btn';
+                    btn.textContent = 'Copy';
+                    btn.onclick = () => copyCode(btn);
+                    block.appendChild(btn);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
