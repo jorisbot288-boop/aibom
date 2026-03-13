@@ -1,26 +1,27 @@
+[![PyPI version](https://badge.fury.io/py/aibom-cli.svg)](https://badge.fury.io/py/aibom-cli)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # AIBOM
 
 Generate EU AI Act Annex IV compliance documentation from your ML codebase in one command.
 
+**[getaibom.com](https://getaibom.com)**
+
 ```bash
 pip install aibom-cli
-aibom scan ./your-project
+aibom scan .
 ```
 
 ## What it does
 
-AIBOM scans your Python ML project and outputs a structured document listing:
+AIBOM scans your Python ML project and outputs a structured document listing the AI models, datasets, and frameworks used in your project. This provides the core inventory required for the technical documentation under Annex IV of the EU AI Act.
 
-- **Datasets** — HuggingFace datasets, TensorFlow datasets, PyTorch torchvision datasets
-- **Models** — HuggingFace pretrained models, OpenAI models, Anthropic models
-- **External APIs** — OpenAI, Anthropic, Google AI, Cohere, Replicate
-
-This covers the dataset and model documentation requirements in EU AI Act Annex IV, Section 2.
+The tool detects components from major AI providers and libraries, helping you automatically generate a baseline "AI Bill of Materials" to accelerate your compliance workflow.
 
 ## Installation
 
 ```bash
-pip install aibom-cli
+pip install aibom-cli==0.2.0
 ```
 
 Requires Python 3.9+
@@ -42,8 +43,8 @@ aibom scan ./my-project --format markdown --output report.md
 
 ```json
 {
-  "aibom_version": "0.1.0",
-  "generated_at": "2026-03-13T13:51:17Z",
+  "aibom_version": "0.2.0",
+  "generated_at": "2026-03-14T05:55:00Z",
   "project_path": "./my-project",
   "datasets": [
     {
@@ -55,7 +56,7 @@ aibom scan ./my-project --format markdown --output report.md
   ],
   "models": [
     {
-      "name": "gpt-4",
+      "name": "gpt-4o",
       "provider": "openai",
       "model_card_url": null,
       "detected_in": "inference.py:12"
@@ -73,23 +74,27 @@ aibom scan ./my-project --format markdown --output report.md
 
 ## What is the EU AI Act?
 
-The EU AI Act requires providers of high-risk AI systems to maintain technical documentation including the datasets and models used. AIBOM generates the dataset and model inventory component of that documentation automatically.
+The EU AI Act requires providers of high-risk AI systems to maintain technical documentation detailing the system's components, including the datasets and models used. AIBOM generates the dataset and model inventory component of that documentation automatically.
 
 Relevant articles: Annex IV Section 2, Article 11, Article 13.
 
-Full enforcement for high-risk AI systems begins August 2027. Foundation model transparency rules are in effect since August 2025.
+## Detection Coverage
 
-## Detection coverage
+AIBOM v0.2.0 detects usage of the following frameworks and providers:
 
-| Source | Detected via |
-|--------|-------------|
-| HuggingFace datasets | `load_dataset()` calls |
-| HuggingFace models | `from_pretrained()` calls |
-| OpenAI (new SDK) | `client.chat.completions.create()` |
-| OpenAI (legacy) | `openai.ChatCompletion.create()` |
-| Anthropic | `client.messages.create()` |
-| TensorFlow datasets | `tfds.load()` calls |
-| PyTorch torchvision | `torchvision.datasets.*` |
+| Provider / Framework | Type |
+|---|---|
+| **HuggingFace** | Models & Datasets |
+| **OpenAI** | Models & API Usage |
+| **Anthropic** | Models & API Usage |
+| **Google Vertex AI** | Models & API Usage |
+| **Cohere** | Models & API Usage |
+| **TensorFlow** | Datasets (`tfds`) |
+| **PyTorch** | Datasets (`torchvision`) |
+| **scikit-learn** | Models & Datasets |
+| **LangChain** | Components |
+| **LlamaIndex** | Components |
+
 
 ## License
 
