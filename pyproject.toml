@@ -1,13 +1,14 @@
 [build-system]
 requires = ["setuptools>=61.0"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "aibom"
+name = "aibom-cli"
 version = "0.1.0"
 description = "Generate EU AI Act Annex IV compliance documentation from your ML codebase"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.9"
 dependencies = [
     "click>=8.0",

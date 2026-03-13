@@ -3,7 +3,7 @@
 Generate EU AI Act Annex IV compliance documentation from your ML codebase in one command.
 
 ```bash
-pip install aibom
+pip install aibom-cli
 aibom scan ./your-project
 ```
 
@@ -20,7 +20,7 @@ This covers the dataset and model documentation requirements in EU AI Act Annex 
 ## Installation
 
 ```bash
-pip install aibom
+pip install aibom-cli
 ```
 
 Requires Python 3.9+
