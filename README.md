@@ -72,6 +72,39 @@ aibom scan ./my-project --format markdown --output report.md
 }
 ```
 
+
+## CI/CD Integration
+
+Automate your compliance documentation by running AIBOM in your CI/CD pipeline. This ensures your AI Bill of Materials is always up-to-date.
+
+Here’s a quick example for GitHub Actions:
+
+```yaml
+name: AIBOM Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  aibom-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install aibom-cli
+      - run: aibom scan . --format markdown --output aibom-report.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aibom-report
+          path: aibom-report.md
+```
+
+For GitLab CI and Jenkins examples, see the [CI/CD integration guide](docs/cicd.md).
+
 ## What is the EU AI Act?
 
 The EU AI Act requires providers of high-risk AI systems to maintain technical documentation detailing the system's components, including the datasets and models used. AIBOM generates the dataset and model inventory component of that documentation automatically.
