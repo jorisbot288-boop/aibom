@@ -77,3 +77,6 @@ def generate_markdown(data):
         lines.append("No datasets, models, or APIs detected.")
     
     return "\n".join(lines)
+
+if __name__ == "__main__":
+    cli()

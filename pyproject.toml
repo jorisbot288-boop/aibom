@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aibom-cli"
-version = "0.2.0"
+version = "0.3.0"
 description = "Generate EU AI Act Annex IV compliance documentation from your ML codebase"
 readme = "README.md"
 license = "MIT"

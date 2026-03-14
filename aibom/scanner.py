@@ -35,7 +35,7 @@ def scan_project(project_path: Path) -> Dict[str, Any]:
         apis.extend(visitor.apis)
     
     return {
-        "aibom_version": "0.1.0",
+        "aibom_version": "0.3.0",
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "project_path": str(project_path),
         "datasets": datasets,
@@ -127,6 +127,16 @@ class DetectionVisitor(ast.NodeVisitor):
             self._add_api("google-vertex-ai", "vertexai", line=line)
         elif module_name == "cohere" or module_name.startswith("cohere."):
             self._add_api("cohere", "cohere", line=line)
+        elif module_name == "torch" or module_name.startswith("torch."):
+            self._add_model("pytorch", "pytorch", model_card_url="https://pytorch.org/", line=line)
+        elif module_name == "tensorflow.keras" or module_name.startswith("tensorflow.keras."):
+            self._add_model("keras", "tensorflow-keras", model_card_url="https://keras.io/", line=line)
+        elif module_name == "keras" or module_name.startswith("keras."):
+            self._add_model("keras", "keras", model_card_url="https://keras.io/", line=line)
+        elif module_name == "xgboost" or module_name.startswith("xgboost."):
+            self._add_model("xgboost", "xgboost", model_card_url="https://xgboost.readthedocs.io/", line=line)
+        elif module_name == "lightgbm" or module_name.startswith("lightgbm."):
+            self._add_model("lightgbm", "lightgbm", model_card_url="https://lightgbm.readthedocs.io/", line=line)
         elif module_name == "google.cloud.aiplatform" or "google.cloud.aiplatform" in module_name:
             self._add_api("google-vertex-ai", "aiplatform", line=line)
     
@@ -156,6 +166,17 @@ class DetectionVisitor(ast.NodeVisitor):
                 dataset_name = get_string_arg(node)
                 if dataset_name:
                     self._add_dataset(dataset_name, "tfds", f"https://www.tensorflow.org/datasets/catalog/{dataset_name}", node.lineno)
+            # Detect torch.hub.load() calls
+            elif isinstance(node.func.value, ast.Attribute) and node.func.value.attr == "hub":
+                if isinstance(node.func.value.value, ast.Name) and node.func.value.value.id in self.imports:
+                    resolved_base = self.imports[node.func.value.value.id]
+                else:
+                    resolved_base = getattr(node.func.value.value, 'id', '')
+                if 'torch' in resolved_base or 'torch' in self.imported_modules:
+                    repo_arg = get_string_arg(node, 0)
+                    model_arg = get_string_arg(node, 1)
+                    if repo_arg and model_arg:
+                        self._add_model(f"{model_arg} ({repo_arg})", "pytorch-hub", f"https://pytorch.org/hub/{repo_arg}", node.lineno)
         
         # Detect torchvision.datasets.* class instantiation
         # Check if the call's function is a Name or Attribute that resolves to a torchvision dataset class
